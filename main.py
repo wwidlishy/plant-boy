@@ -12,7 +12,7 @@ from scripts.textures import txt
 pg.init()
 
 #set the title & icon
-pg.display.set_caption("Square Kings")
+pg.display.set_caption("Plant Boy")
 pg.display.set_icon(txt.icon)
 #global variables
 global screen

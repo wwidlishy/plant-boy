@@ -40,7 +40,6 @@ class MainMenu:
             if button.hover(50, 100, 100, 50):
                 mt = pg.transform.scale(txt.cours_2, (25, 25))
                 if button.click(50, 100, 100, 50): #play button function
-                    print('he')
                     MainMenu.play(screen)
             if button.hover(50, 175, 100, 50):
                 mt = pg.transform.scale(txt.cours_2, (25, 25))
@@ -64,6 +63,12 @@ class MainMenu:
                     screen = pg.display.set_mode(event.size, HWSURFACE|DOUBLEBUF|RESIZABLE)
 
             fscreen.blit(pg.transform.scale(txt.bg, (800, 600)), (0, 0)) #background
+            fscreen.blit(pg.transform.scale(txt.buttons.back, (100, 50)), (0, 0)) #back button
+
+            if button.hover(0, 0, 100, 50):
+                mt = pg.transform.scale(txt.cours_2, (25, 25))
+                if button.click(0, 0, 100, 50): #back button function
+                    MainMenu.main_menu(screen)
 
             mend(fscreen, mt, mx, my)
             screen.blit(pg.transform.scale(fscreen, screen.get_rect().size), (0, 0))
