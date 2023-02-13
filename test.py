@@ -2,5 +2,6 @@ test = """
 global hi
 hi = "Hello World!"
 """
-test = exec(test)
+class test:
+    test = exec(test)
 print(hi)

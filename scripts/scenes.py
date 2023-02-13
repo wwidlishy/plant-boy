@@ -4,12 +4,16 @@ import sys
 import os
 import shutil
 from pygame.locals import *
+from win32api import GetSystemMetrics
 
 #import scripts
 import scripts.button as button
 from scripts.textures import txt
 import scripts.filemanager as fm
 from scripts.player import Player
+from scripts.platform import Platform
+from scripts.collide import *
+import scripts.settingsmanager as sman
 
 def display_text(text, font_size, font_color, position, screen):
     font = pg.font.Font(None, font_size)
@@ -20,15 +24,15 @@ def mstart():
     pg.mouse.set_visible(False)
 def mend(fscreen, mt, mx, my):
     fscreen.blit(mt, (mx, my))
-class u:
-    ores = (0, 0)
-    fullscreen = False
-    uscreen = None
 
 #Main menu screenss
 class MainMenu:
     def main_menu(screen):
         fscreen = screen.copy()
+        if sman.load()['fullscreen']:
+            screen = pg.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pg.FULLSCREEN)
+        else:
+            screen = pg.display.set_mode((800, 600))
         while True:
             mstart()
             mt = pg.transform.scale(txt.cours_1, (25, 25))
@@ -36,9 +40,14 @@ class MainMenu:
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     sys.exit(0)
-                elif event.type == pg.VIDEORESIZE:
-                    u.ores = event.size
-                    screen = pg.display.set_mode(event.size, HWSURFACE|DOUBLEBUF|RESIZABLE)
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_F11:
+                        if not sman.load()['fullscreen']:
+                            sman.write(sman.settingstosave.replace('__FULLSCREEN__', 'True').replace('__AUTOSAVE__', f"{sman.load()['autosave']}"))
+                            screen = pg.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pg.FULLSCREEN)
+                        else:
+                            sman.write(sman.settingstosave.replace('__FULLSCREEN__', 'False').replace('__AUTOSAVE__', f"{sman.load()['autosave']}"))
+                            screen = pg.display.set_mode((800, 600))
 
             fscreen.blit(pg.transform.scale(txt.bg, (800, 600)), (0, 0)) #background
             fscreen.blit(pg.transform.scale(txt.buttons.play, (100, 50)), (50, 100)) #play button
@@ -59,8 +68,12 @@ class MainMenu:
             pg.time.Clock().tick(60)
     def play(screen):
         cback = 0
-        fscreen = screen.copy()
         running = True
+        fscreen = pg.surface.Surface((800, 600))
+        if sman.load()['fullscreen']:
+            screen = pg.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pg.FULLSCREEN)
+        else:
+            screen = pg.display.set_mode((800, 600))
         while running:
             if cback != 10: cback += 1
             mstart()
@@ -70,8 +83,14 @@ class MainMenu:
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     sys.exit(0)
-                elif event.type == pg.VIDEORESIZE:
-                    screen = pg.display.set_mode(event.size, HWSURFACE|DOUBLEBUF|RESIZABLE)
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_F11:
+                        if not sman.load()['fullscreen']:
+                            sman.write(sman.settingstosave.replace('__FULLSCREEN__', 'True').replace('__AUTOSAVE__', f"{sman.load()['autosave']}"))
+                            screen = pg.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pg.FULLSCREEN)
+                        else:
+                            sman.write(sman.settingstosave.replace('__FULLSCREEN__', 'False').replace('__AUTOSAVE__', f"{sman.load()['autosave']}"))
+                            screen = pg.display.set_mode((800, 600))
 
             fscreen.blit(pg.transform.scale(txt.bg, (800, 600)), (0, 0)) #background
             fscreen.blit(pg.transform.scale(txt.buttons.back, (100, 50)), (0, 0)) #back button
@@ -97,8 +116,12 @@ class MainMenu:
             pg.display.flip()
             pg.time.Clock().tick(60)
     def new(screen):
-        fscreen = screen.copy()
+        fscreen = pg.surface.Surface((800, 600))
         name = ""
+        if sman.load()['fullscreen']:
+            screen = pg.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pg.FULLSCREEN)
+        else:
+            screen = pg.display.set_mode((800, 600))
         while True:
             mstart()
             mt = pg.transform.scale(txt.cours_1, (25, 25))
@@ -107,8 +130,6 @@ class MainMenu:
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     sys.exit(0)
-                elif event.type == pg.VIDEORESIZE:
-                    screen = pg.display.set_mode(event.size, HWSURFACE|DOUBLEBUF|RESIZABLE)
                 elif event.type == pg.KEYDOWN:
                     if event.key == pg.K_BACKSPACE:
                         if len(name) != 0:
@@ -119,7 +140,14 @@ class MainMenu:
                             #TODO Name error popup
                             pass
                         else:
-                            Game.game(screen, fm.load(name), name)  
+                            Game.game(screen, fm.load(name), name) 
+                    elif event.key == pg.K_F11:
+                        if not sman.load()['fullscreen']:
+                            sman.write(sman.settingstosave.replace('__FULLSCREEN__', 'True').replace('__AUTOSAVE__', f"{sman.load()['autosave']}"))
+                            screen = pg.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pg.FULLSCREEN)
+                        else:
+                            sman.write(sman.settingstosave.replace('__FULLSCREEN__', 'False').replace('__AUTOSAVE__', f"{sman.load()['autosave']}"))
+                            screen = pg.display.set_mode((800, 600)) 
                     else:
                         if len(name) != 27:
                             name += event.unicode
@@ -151,8 +179,12 @@ class MainMenu:
             pg.display.flip()
             pg.time.Clock().tick(60)
     def load(screen):
-        fscreen = screen.copy()
+        fscreen = pg.surface.Surface((800, 600))
         name = ""
+        if sman.load()['fullscreen']:
+            screen = pg.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pg.FULLSCREEN)
+        else:
+            screen = pg.display.set_mode((800, 600))
         while True:
             mstart()
             mt = pg.transform.scale(txt.cours_1, (25, 25))
@@ -161,8 +193,6 @@ class MainMenu:
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     sys.exit(0)
-                elif event.type == pg.VIDEORESIZE:
-                    screen = pg.display.set_mode(event.size, HWSURFACE|DOUBLEBUF|RESIZABLE)
                 elif event.type == pg.KEYDOWN:
                     if event.key == pg.K_BACKSPACE:
                         if len(name) != 0:
@@ -174,6 +204,13 @@ class MainMenu:
                             pass
                         else:
                             Game.game(screen, fm.load(name), name)  
+                    elif event.key == pg.K_F11:
+                        if not sman.load()['fullscreen']:
+                            sman.write(sman.settingstosave.replace('__FULLSCREEN__', 'True').replace('__AUTOSAVE__', f"{sman.load()['autosave']}"))
+                            screen = pg.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pg.FULLSCREEN)
+                        else:
+                            sman.write(sman.settingstosave.replace('__FULLSCREEN__', 'False').replace('__AUTOSAVE__', f"{sman.load()['autosave']}"))
+                            screen = pg.display.set_mode((800, 600))
                     else:
                         if len(name) != 27:
                             name += event.unicode
@@ -209,10 +246,15 @@ class Game:
         load = saveData[0]
         tosave = saveData[1]
         sname = name.replace(' ', "_")
-        fscreen = screen.copy()
+        fscreen = pg.surface.Surface((800, 600))
         running = True
         x, y = load['player_stats']['pos']
         player = Player(fscreen, (x, y))
+        platform = Platform(fscreen, (100, 400), (500 ,50))
+        if sman.load()['fullscreen']:
+            screen = pg.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pg.FULLSCREEN)
+        else:
+            screen = pg.display.set_mode((800, 600))
         while running:
             mstart()
             mt = pg.transform.scale(txt.cours_1, (25, 25))
@@ -221,11 +263,19 @@ class Game:
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     sys.exit(0)
-                elif event.type == pg.VIDEORESIZE:
-                    screen = pg.display.set_mode(event.size, HWSURFACE|DOUBLEBUF|RESIZABLE)
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_F11:
+                        if not sman.load()['fullscreen']:
+                            sman.write(sman.settingstosave.replace('__FULLSCREEN__', 'True').replace('__AUTOSAVE__', f"{sman.load()['autosave']}"))
+                            screen = pg.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pg.FULLSCREEN)
+                        else:
+                            sman.write(sman.settingstosave.replace('__FULLSCREEN__', 'False').replace('__AUTOSAVE__', f"{sman.load()['autosave']}"))
+                            screen = pg.display.set_mode((800, 600))
 
             fscreen.fill((100, 100, 100))
             player.draw()
+            platform.draw()
+            collides(player, platform)
             mend(fscreen, mt, mx, my)
             screen.blit(pg.transform.scale(fscreen, screen.get_rect().size), (0, 0))
             pg.display.flip()

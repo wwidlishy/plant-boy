@@ -16,7 +16,7 @@ pg.display.set_caption("Plant Boy")
 pg.display.set_icon(txt.icon)
 #global variables
 global screen
-screen = pg.display.set_mode((800, 600), HWSURFACE|DOUBLEBUF|RESIZABLE)
+screen = pg.display.set_mode((800, 600))
 
 #entry
 if __name__ == "__main__":
