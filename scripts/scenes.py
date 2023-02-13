@@ -9,6 +9,7 @@ from pygame.locals import *
 import scripts.button as button
 from scripts.textures import txt
 import scripts.filemanager as fm
+from scripts.player import Player
 
 def display_text(text, font_size, font_color, position, screen):
     font = pg.font.Font(None, font_size)
@@ -86,6 +87,10 @@ class MainMenu:
                 mt = pg.transform.scale(txt.cours_2, (25, 25))
                 if button.click(0, 500, 100, 50): #new button function
                     MainMenu.new(screen)
+            if button.hover(0, 550, 100, 50):
+                mt = pg.transform.scale(txt.cours_2, (25, 25))
+                if button.click(0, 550, 100, 50): #load button function
+                    MainMenu.load(screen)
 
             mend(fscreen, mt, mx, my)
             screen.blit(pg.transform.scale(fscreen, screen.get_rect().size), (0, 0))
@@ -108,6 +113,13 @@ class MainMenu:
                     if event.key == pg.K_BACKSPACE:
                         if len(name) != 0:
                             name = name[:-1]
+                    elif event.key == pg.K_RETURN:
+                        save = fm.new(name)
+                        if save == 1:
+                            #TODO Name error popup
+                            pass
+                        else:
+                            Game.game(screen, fm.load(name), name)  
                     else:
                         if len(name) != 27:
                             name += event.unicode
@@ -130,19 +142,77 @@ class MainMenu:
                     save = fm.new(name)
                     if save == 1:
                         #TODO Name error popup
-                        Game.game(screen, fm.load(name))
-                    else:
                         pass
+                    else:
+                        Game.game(screen, fm.load(name), name)
+
+            mend(fscreen, mt, mx, my)
+            screen.blit(pg.transform.scale(fscreen, screen.get_rect().size), (0, 0))
+            pg.display.flip()
+            pg.time.Clock().tick(60)
+    def load(screen):
+        fscreen = screen.copy()
+        name = ""
+        while True:
+            mstart()
+            mt = pg.transform.scale(txt.cours_1, (25, 25))
+            mx, my = pg.mouse.get_pos()
+            pg.mouse.set_visible(False)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    sys.exit(0)
+                elif event.type == pg.VIDEORESIZE:
+                    screen = pg.display.set_mode(event.size, HWSURFACE|DOUBLEBUF|RESIZABLE)
+                elif event.type == pg.KEYDOWN:
+                    if event.key == pg.K_BACKSPACE:
+                        if len(name) != 0:
+                            name = name[:-1]
+                    elif event.key == pg.K_RETURN:
+                        save = fm.load(name)
+                        if save == 1:
+                            #TODO Name error popup
+                            pass
+                        else:
+                            Game.game(screen, fm.load(name), name)  
+                    else:
+                        if len(name) != 27:
+                            name += event.unicode
+
+            fscreen.blit(pg.transform.scale(txt.bg, (800, 600)), (0, 0)) #background
+            fscreen.blit(pg.transform.scale(txt.buttons.back, (100, 50)), (0, 0)) #back button
+            fscreen.blit(pg.transform.scale(txt.buttons.load, (100, 50)), (0, 550)) #load button
+
+            pg.draw.rect(fscreen, (54,43,46), pg.Rect(100, 100, 600, 400))
+            pg.draw.rect(fscreen, (255, 255, 255), pg.Rect(110, 145, 400, 45))
+            display_text("Name", 40, (255, 255, 255), (100, 100), fscreen)
+            display_text(f"{name}", 40, (0 ,0, 0), (110, 145), fscreen)
+            if button.hover(0, 0, 100, 50):
+                mt = pg.transform.scale(txt.cours_2, (25, 25))
+                if button.click(0, 0, 100, 50): #back button function
+                    MainMenu.play(screen)
+            if button.hover(0, 550, 100, 50):
+                mt = pg.transform.scale(txt.cours_2, (25, 25))
+                if button.click(0, 550, 100, 50): #load button function
+                    save = fm.load(name)
+                    if save == 1:
+                        #TODO Name error popup
+                        pass
+                    else:
+                        Game.game(screen, fm.load(name), name)
 
             mend(fscreen, mt, mx, my)
             screen.blit(pg.transform.scale(fscreen, screen.get_rect().size), (0, 0))
             pg.display.flip()
             pg.time.Clock().tick(60)
 class Game:
-    def game(screen, saveData):
-        print(saveData)
+    def game(screen, saveData, name):
+        load = saveData[0]
+        tosave = saveData[1]
+        sname = name.replace(' ', "_")
         fscreen = screen.copy()
         running = True
+        x, y = load['player_stats']['pos']
+        player = Player(fscreen, (x, y))
         while running:
             mstart()
             mt = pg.transform.scale(txt.cours_1, (25, 25))
@@ -154,8 +224,8 @@ class Game:
                 elif event.type == pg.VIDEORESIZE:
                     screen = pg.display.set_mode(event.size, HWSURFACE|DOUBLEBUF|RESIZABLE)
 
-            fscreen.fill((0, 0, 0))
-
+            fscreen.fill((100, 100, 100))
+            player.draw()
             mend(fscreen, mt, mx, my)
             screen.blit(pg.transform.scale(fscreen, screen.get_rect().size), (0, 0))
             pg.display.flip()
